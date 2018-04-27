@@ -43,3 +43,51 @@ hampel_outlier(heart_disease$age)
 # All below 29.31 and all above 82.68 will be considered as outliers.
 
 # 2.4.7 Step 2: What to do with the outliers?
+# 2.4.7.1 Scenario 1: Prepare outliers for data profiling
+head(df_1)
+profiling_num(df_1$var)
+# 2.4.7.1.1 Using prep_outliers for data profiling
+# Using Tukey’s method
+df_1$var_tukey = prep_outliers(df_1$var,
+                               type = "set_na", method = "tukey")
+# before
+df_status(df_1$var, print_results = F) %>%
+  select(variable, q_na, p_na)
+df_status(df_1$var_tukey, print_results = F) %>%
+  select(variable, q_na, p_na)
+profiling_num(df_1, print_results = F) %>%
+  select(variable, mean, std_dev, variation_coef,
+         kurtosis, range_98)
+# Hampel’s method
+df_1$var_hampel = prep_outliers(df_1$var,
+                                type = "set_na", method = "hampel")
+df_status(df_1, print_results = F) %>% select(variable,
+                                              q_na, p_na)
+# Bottom and top X% method
+df_1$var_top2 = prep_outliers(df_1$var, type = "set_na",
+                              method = "bottom_top", top_percent = 0.02)
+df_status(df_1, print_results = F) %>% select(variable,
+                                              q_na, p_na)
+prof_num = profiling_num(df_1, print_results = F) %>%
+  select(variable, mean, std_dev, variation_coef,
+         kurtosis, range_98)
+prof_num
+head(df_1)
+# Plotting
+df_1_m = reshape2::melt(df_1)
+head(df_1_m)
+plotar(df_1_m, target = "variable", input = "value",
+       plot_type = "boxplot")
+
+# 2.4.7.3 Imputing outliers for predictive modeling
+# Creating data frame with outliers
+# deactivating scientific notation
+options(scipen = 999)
+# setting the seed to have a reproducible example
+set.seed(10)
+# creating the variables
+df_2 = data.frame(var1 = rchisq(1000, df = 1),
+                  var2 = rnorm(1000))
+# forcing outliers
+df_2 = rbind(df_2, 135, rep(400, 30), 245, 300, 303,
+             200)
