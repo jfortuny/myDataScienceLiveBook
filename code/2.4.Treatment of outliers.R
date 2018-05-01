@@ -91,3 +91,13 @@ df_2 = data.frame(var1 = rchisq(1000, df = 1),
 # forcing outliers
 df_2 = rbind(df_2, 135, rep(400, 30), 245, 300, 303,
              200)
+head(df_2)
+profiling_num(df_2)
+# Dealing with outliers in both variables (var1 and var2) using Tukey’s method
+df_2_tukey = prep_outliers(data = df_2,
+                           input = c("var1", "var2"), type = "stop",
+                           method = "tukey")
+profiling_num(df_2, print_results = F) %>%
+  select(variable, mean, std_dev, variation_coef)
+profiling_num(df_2_tukey, print_results = F) %>%
+  select(variable, mean, std_dev, variation_coef)
